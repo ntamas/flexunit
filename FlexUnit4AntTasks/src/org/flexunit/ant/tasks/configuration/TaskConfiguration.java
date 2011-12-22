@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.DirSet;
 import org.apache.tools.ant.types.FileSet;
 import org.flexunit.ant.LoggingUtil;
 import org.flexunit.ant.tasks.types.LoadConfig;
@@ -68,6 +69,11 @@ public class TaskConfiguration
       testRunConfiguration.setFailureProperty(failureProperty);
    }
    
+   public void addExtension(ExtensionElement extension)
+   {
+	   testRunConfiguration.addExtension(extension);
+   }
+   
    public void addSource(FileSet fileset)
    {
       fileset.setProject(project);
@@ -78,6 +84,12 @@ public class TaskConfiguration
    {
       fileset.setProject(project);
       compilationConfiguration.addTestSource(fileset);
+   }
+   
+   public void addExtensionPath(DirSet dirset)
+   {
+	   dirset.setProject(project);
+	   testRunConfiguration.addExtensionPath(dirset);
    }
    
    public void addLibrary(FileSet fileset)

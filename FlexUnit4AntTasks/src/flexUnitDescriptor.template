@@ -15,4 +15,5 @@
         <width>320</width> 
         <height>240</height> 
 	</initialWindow>
+	@EXTENSION_TAGS@
 </application>

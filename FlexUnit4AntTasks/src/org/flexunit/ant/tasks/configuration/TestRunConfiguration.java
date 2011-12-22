@@ -1,8 +1,11 @@
 package org.flexunit.ant.tasks.configuration;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.types.DirSet;
 import org.flexunit.ant.LoggingUtil;
 import org.flexunit.ant.launcher.OperatingSystem;
 
@@ -14,6 +17,8 @@ public class TestRunConfiguration implements StepConfiguration
    private String player;
    private File command = null;
    private int display = 99;
+   private List<ExtensionElement> extensions = null;
+   private List<DirSet> extensionPath = new ArrayList<DirSet>();
    private boolean failOnTestFailure = false;
    private String failureProperty = "flexunit.failed";
    private File flexHome = null;
@@ -52,7 +57,31 @@ public class TestRunConfiguration implements StepConfiguration
    {
       this.display = display;
    }
-
+   
+   public List<ExtensionElement> getExtensions()
+   {
+	   return this.extensions;
+   }
+   
+   public void addExtension(ExtensionElement extension)
+   {
+	   if (this.extensions == null)
+	   {
+		   this.extensions = new ArrayList<ExtensionElement>();
+	   }
+	   this.extensions.add(extension);
+   }
+   
+   public List<DirSet> getExtensionPath()
+   {
+	   return this.extensionPath;
+   }
+   
+   public void addExtensionPath(DirSet dirset)
+   {
+	   this.extensionPath.add(dirset);
+   }
+   
    public boolean isFailOnTestFailure()
    {
       return failOnTestFailure;
@@ -248,6 +277,16 @@ public class TestRunConfiguration implements StepConfiguration
       if(isCustomCommand())
       {
          LoggingUtil.log("\tcommand: [" + command + "]");
+      }
+      
+      if(extensions != null && extensions.size() > 0)
+      {
+	      LoggingUtil.log("\textensions: [" + extensions + "]");
+      }
+      
+      if(extensionPath != null && extensionPath.size() > 0)
+      {
+    	  LoggingUtil.log("\textensionPaths: [" + extensionPath + "]");
       }
       
       LoggingUtil.log("\tport: [" + port + "]");

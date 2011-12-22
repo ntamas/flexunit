@@ -4,7 +4,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DynamicElement;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.DirSet;
 import org.apache.tools.ant.types.FileSet;
+import org.flexunit.ant.tasks.configuration.ExtensionElement;
 import org.flexunit.ant.tasks.configuration.TaskConfiguration;
 import org.flexunit.ant.tasks.types.LoadConfig;
 
@@ -150,6 +152,18 @@ public class FlexUnitTask extends Task implements DynamicElement
    public void addLibrary(FileSet fileset)
    {
       configuration.addLibrary(fileset);
+   }
+   
+   public void addExtensionPath(DirSet dirset)
+   {
+	   configuration.addExtensionPath(dirset);
+   }
+   
+   public ExtensionElement createExtension()
+   {
+	   ExtensionElement elt = new ExtensionElement();
+	   configuration.addExtension(elt);
+	   return elt;
    }
    
    public void setWorkingDir(String workingDirPath)

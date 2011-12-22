@@ -1,9 +1,13 @@
 package org.flexunit.ant.launcher.commands.player;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.types.Commandline;
+import org.apache.tools.ant.types.DirSet;
 import org.apache.tools.ant.types.FilterSet;
 import org.apache.tools.ant.types.FilterSetCollection;
 import org.apache.tools.ant.types.Commandline.Argument;
@@ -11,6 +15,7 @@ import org.apache.tools.ant.types.resources.FileResource;
 import org.apache.tools.ant.types.resources.URLResource;
 import org.apache.tools.ant.util.ResourceUtils;
 import org.flexunit.ant.LoggingUtil;
+import org.flexunit.ant.tasks.configuration.ExtensionElement;
 
 public class AdlCommand extends DefaultPlayerCommand
 {
@@ -18,8 +23,18 @@ public class AdlCommand extends DefaultPlayerCommand
    private final String DESCRIPTOR_TEMPLATE = "flexUnitDescriptor.template";
    private final String DESCRIPTOR_FILE = "flexUnitDescriptor.xml";
 
+   /**
+    * The list of native extensions to load.
+    */
+   private List<ExtensionElement> extensions = null;
+   
+   /**
+    * The path where we look for extensions.
+    */
+   private List<DirSet> extensionPath = null;
+   
    private File precompiledAppDescriptor;
-
+   
    @Override
    public File getFileToExecute()
    {
@@ -53,6 +68,7 @@ public class AdlCommand extends DefaultPlayerCommand
          } else {
         	 filters.addFilter("VERSION_PROP", "version");
          }
+         filters.addFilter("EXTENSION_TAGS", getExtensionTags());
 
          //Copy descriptor template to SWF folder performing token replacement
          ResourceUtils.copyResource(
@@ -75,6 +91,25 @@ public class AdlCommand extends DefaultPlayerCommand
       }
    }
 
+   /**
+    * Generates the required <code>&lt;extensionID&gt;</code> tags in the application
+    * descriptor file.
+    */
+   private String getExtensionTags()
+   {
+	   if (!this.hasExtensions())
+		   return "";
+	   
+	   StringBuilder sb = new StringBuilder();
+	   sb.append("    <extensions>\n");
+	   for (ExtensionElement extension: extensions) {
+		   sb.append("        <extensionID>" + extension.getName() + "</extensionID>\n");
+	   }
+	   sb.append("    </extensions>");
+	   
+	   return sb.toString();
+   }
+   
    private double getVersion()
    {
       String outputProperty = "AIR_VERSION";
@@ -120,9 +155,24 @@ public class AdlCommand extends DefaultPlayerCommand
    @Override
    public void prepare()
    {
-      getCommandLine().setExecutable(generateExecutable());
-      getCommandLine().addArguments(new String[]{getFileToExecute().getAbsolutePath()});
+	  Commandline cmd = this.getCommandLine();
+      cmd.setExecutable(generateExecutable());
+      
+      if(this.hasExtensions())
+      {
+    	  getCommandLine().addArguments(new String[] { "-profile", "extendedDesktop" });
+    	  
+    	  if (this.extensionPath != null && this.extensionPath.size() > 0)
+    	  {
+    		  for (DirSet dirSet: this.extensionPath)
+    		  {
+    			  cmd.addArguments(new String[] { "-extdir", dirSet.getDir().getAbsolutePath() });
+    		  }
+    	  }
+      }
 
+      cmd.addArguments(new String[]{getFileToExecute().getAbsolutePath()});
+      
       if(getPrecompiledAppDescriptor() == null)
       {
     	  //Create Adl descriptor file
@@ -143,5 +193,27 @@ public class AdlCommand extends DefaultPlayerCommand
    public void setPrecompiledAppDescriptor(File precompiledAppDescriptor)
    {
 	   this.precompiledAppDescriptor = precompiledAppDescriptor;
+   }
+   
+   public List<ExtensionElement> getExtensions() {
+	   if (extensions == null)
+		   return null;
+	   return Collections.unmodifiableList(extensions);
+   }
+   
+   public boolean hasExtensions() {
+	   return extensions != null && !extensions.isEmpty();
+   }
+   
+   public void setExtensions(List<ExtensionElement> extensions) {
+	   this.extensions = extensions;
+   }
+   
+   public List<DirSet> getExtensionPath() {
+	   return this.extensionPath;
+   }
+   
+   public void setExtensionPath(List<DirSet> path) {
+	   this.extensionPath = path;
    }
 }

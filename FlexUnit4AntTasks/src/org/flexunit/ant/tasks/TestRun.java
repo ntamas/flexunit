@@ -89,7 +89,10 @@ public class TestRun
       
       if(command instanceof AdlCommand) 
       {
-    	  ((AdlCommand)command).setPrecompiledAppDescriptor(configuration.getPrecompiledAppDescriptor());
+    	  AdlCommand adlCommand = (AdlCommand)command;
+    	  adlCommand.setExtensions(configuration.getExtensions());
+    	  adlCommand.setExtensionPath(configuration.getExtensionPath());
+    	  adlCommand.setPrecompiledAppDescriptor(configuration.getPrecompiledAppDescriptor());
       }
       
       return command;
